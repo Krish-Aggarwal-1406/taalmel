@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "459509276666",
+    "project_id": "taalmel-e0e35",
+    "storage_bucket": "taalmel-e0e35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:459509276666:android:dfd8515e26af4c7acbce43",
+        "android_client_info": {
+          "package_name": "com.example.taalmel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTghjpLsfhaCbqdXFqSDXOj4limueicuU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
