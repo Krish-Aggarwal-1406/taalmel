@@ -16,7 +16,6 @@ class HomePage extends StatelessWidget {
     return start1.isBefore(end2) && start2.isBefore(end1);
   }
 
-  // Fixed: Pass meetings as parameter instead of accessing observable inside
   Map<String, List<String>> getMeetingConflicts(List meetings) {
     Map<String, List<String>> conflicts = {};
     Duration meetingDuration = Duration(hours: 1);
@@ -86,7 +85,6 @@ class HomePage extends StatelessWidget {
           return Center(child: Text("No meetings scheduled"));
         }
 
-        // Fixed: Pass meetings to the function instead of accessing observable again
         final conflicts = getMeetingConflicts(meetings);
 
         return ListView.builder(

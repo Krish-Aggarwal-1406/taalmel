@@ -53,7 +53,7 @@ class _AddMeetingPageState extends State<AddMeetingPage> {
     }
 
     final meeting = Meeting(
-      id: '', // For Firestore: you can generate or use auto ID
+      id: '',
       title: titleController.text.trim(),
       datetimeUTC: selectedDateTime!.toUtc(),
       createdBy: currentUser.uid,

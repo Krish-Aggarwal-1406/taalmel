@@ -52,7 +52,6 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
 
-    // Set UserController data
     Get.find<UserController>().setUser(
       id: user.uid,
       emailadd: user.email ?? '',
@@ -116,17 +115,6 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/starrynight.jpeg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withAlpha(100),
-            ),
-          ),
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -135,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     SizedBox(height: height * 0.04),
                     Image.asset(
-                      "assets/Kalpna_Kosh_final-removebg-preview.png",
+                      "assets/Taalmel_logo-removebg-preview.png",
                       height: height * 0.35,
                       fit: BoxFit.fitWidth,
                     ),

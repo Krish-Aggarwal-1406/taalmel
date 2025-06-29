@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import '../controller/user_controller.dart';
 import '../utils/toast_message.dart';
 import 'home_page.dart';
@@ -39,9 +40,8 @@ class _SignUpPageState extends State<SignUpPage> {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
       final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        return; // User cancelled the sign-in
-      }
+      if (googleUser == null) return;
+
       final googleAuth = await googleUser.authentication;
 
       final credential = GoogleAuthProvider.credential(
@@ -65,11 +65,16 @@ class _SignUpPageState extends State<SignUpPage> {
         });
       }
 
-      Get.find<UserController>().setUser(
+      final userController = Get.isRegistered<UserController>()
+          ? Get.find<UserController>()
+          : Get.put(UserController());
+
+      userController.setUser(
         id: user.uid,
         emailadd: user.email ?? '',
         uname: user.displayName ?? '',
       );
+
 
       Get.offAll(() => HomePage());
     } catch (e) {
@@ -130,245 +135,238 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = const Color(0xFF7F00FF);
-    final secondaryColor = const Color(0xFFE100FF);
+    final primaryColor = const Color(0xFF007ACC);
+    final secondaryColor = const Color(0xFF00BFA6);
+    final inputFillColor = Color(0xFFF5F9FF);
+    final textColor = Colors.black87;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/starrynight.jpeg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.6),
-            ),
-          ),
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    children: [
-                      SizedBox(height: 40),
-                      Container(
-                        width: double.infinity,
-                        height: 180,
-                        child: Image.asset(
-                          "assets/Kalpna_Kosh_final-removebg-preview.png",
-                          fit: BoxFit.fitWidth,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        "Hey There",
-                        style: TextStyle(color: Colors.white70, fontSize: 18),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        "Create an Account",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          shadows: [Shadow(color: Colors.black54, blurRadius: 3, offset: Offset(1, 1))],
-                        ),
-                      ),
-                      SizedBox(height: 20),
-
-                      // Fixed Username Field - Removed Obx wrapper
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextFormField(
-                            controller: usernameController,
-                            onChanged: (value) async {
-                              if (value.trim().isEmpty) {
-                                usernameAvailable.value = true;
-                                return;
-                              }
-                              final query = await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .where('username', isEqualTo: value.trim())
-                                  .get();
-                              usernameAvailable.value = query.docs.isEmpty;
-                              // Trigger form validation after checking username
-                              formKey.currentState?.validate();
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) return 'Username is required';
-                              if (!usernameAvailable.value) return 'Username already taken';
-                              return null;
-                            },
-                            style: TextStyle(color: Colors.white),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white.withAlpha(20),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: primaryColor, width: 2),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              prefixIcon: Icon(Icons.person_outline, color: primaryColor),
-                              hintText: "Username",
-                              hintStyle: TextStyle(color: Colors.white70),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          // Optional: Show username availability status
-                          Obx(() => usernameController.text.trim().isNotEmpty
-                              ? Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Text(
-                              usernameAvailable.value ? '✓ Username available' : '✗ Username already taken',
-                              style: TextStyle(
-                                color: usernameAvailable.value ? Colors.green : Colors.red,
-                                fontSize: 12,
-                              ),
-                            ),
-                          )
-                              : SizedBox.shrink()
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        controller: emailController,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) return "Email is required";
-                          if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(value)) {
-                            return "Enter a valid email";
-                          }
-                          return null;
-                        },
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white.withAlpha(20),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: primaryColor, width: 2),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          labelText: "Email",
-                          labelStyle: TextStyle(color: Colors.white70),
-                          prefixIcon: Icon(Icons.email_outlined, color: primaryColor),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return "Password is required";
-                          if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
-                            return "Password must be 8+ chars, 1 uppercase, 1 lowercase & 1 number";
-                          }
-                          return null;
-                        },
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white.withAlpha(20),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: primaryColor, width: 2),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          prefixIcon: Icon(Icons.lock_outline, color: primaryColor),
-                          labelText: "Password",
-                          labelStyle: TextStyle(color: Colors.white70),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: isChecked,
-                            onChanged: (val) {
-                              setState(() {
-                                isChecked = val ?? false;
-                              });
-                            },
-                            fillColor: MaterialStateProperty.all(primaryColor),
-                            checkColor: Colors.white,
-                          ),
-                          Expanded(
-                            child: Text(
-                              "By continuing you accept our Privacy Policy and Terms of Use",
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: loading ? null : signup,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          elevation: 3,
-                          shadowColor: secondaryColor.withOpacity(0.4),
-                          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 60),
-                        ),
-                        child: loading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text("Register", style: TextStyle(color: Colors.white, fontSize: 18)),
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        "-------------------------or-------------------------",
-                        style: TextStyle(fontSize: 20, color: Colors.white70),
-                      ),
-                      SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: handleGoogleLogin,
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [primaryColor, secondaryColor],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: secondaryColor.withOpacity(0.6),
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: FaIcon(
-                              FontAwesomeIcons.google,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Create Account",
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor,
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  "Welcome! Please fill the details below to create a new account.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: usernameController,
+                      onChanged: (value) async {
+                        if (value.trim().isEmpty) {
+                          usernameAvailable.value = true;
+                          return;
+                        }
+                        final query = await FirebaseFirestore.instance
+                            .collection('users')
+                            .where('username', isEqualTo: value.trim())
+                            .get();
+                        usernameAvailable.value = query.docs.isEmpty;
+                        formKey.currentState?.validate();
+                      },
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) return 'Username is required';
+                        if (!usernameAvailable.value) return 'Username already taken';
+                        return null;
+                      },
+                      style: TextStyle(color: textColor),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: inputFillColor,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        prefixIcon: Icon(Icons.person_outline, color: primaryColor),
+                        hintText: "Username",
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Obx(() {
+                      if (usernameController.text.trim().isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 14),
+                        child: Text(
+                          usernameAvailable.value ? '✓ Username available' : '✗ Username already taken',
+                          style: TextStyle(
+                            color: usernameAvailable.value ? Colors.green : Colors.red,
+                            fontSize: 13,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: emailController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return "Email is required";
+                    if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w{2,4}$').hasMatch(value)) return "Enter a valid email";
+                    return null;
+                  },
+                  style: TextStyle(color: textColor),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: inputFillColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: primaryColor, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    labelText: "Email",
+                    labelStyle: TextStyle(color: Colors.grey.shade700),
+                    prefixIcon: Icon(Icons.email_outlined, color: primaryColor),
+                    hintText: "you@example.com",
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return "Password is required";
+                    if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$').hasMatch(value)) {
+                      return "8+ chars, 1 uppercase, 1 lowercase & 1 number";
+                    }
+                    return null;
+                  },
+                  style: TextStyle(color: textColor),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: inputFillColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: primaryColor, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: Icon(Icons.lock_outline, color: primaryColor),
+                    labelText: "Password",
+                    labelStyle: TextStyle(color: Colors.grey.shade700),
+                    hintText: "Enter password",
+                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isChecked,
+                      onChanged: (val) => setState(() => isChecked = val ?? false),
+                      activeColor: secondaryColor,
+                      checkColor: Colors.white,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        "I accept the Privacy Policy and Terms of Use",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: loading ? null : signup,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: loading
+                        ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                    )
+                        : const Text(
+                      "Register",
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        "OR",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.grey.shade300)),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: handleGoogleLogin,
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [primaryColor, secondaryColor],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: secondaryColor.withOpacity(0.5),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: FaIcon(
+                        FontAwesomeIcons.google,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

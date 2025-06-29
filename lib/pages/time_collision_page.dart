@@ -10,12 +10,10 @@ class CollisionVisualizationPage extends StatelessWidget {
 
   final MeetingController meetingController = Get.find<MeetingController>();
 
-  // Helper to check if two meetings overlap (assuming 1 hour duration)
   bool meetingsOverlap(DateTime start1, DateTime end1, DateTime start2, DateTime end2) {
     return start1.isBefore(end2) && start2.isBefore(end1);
   }
 
-  // Build map of conflicts: meetingId -> List of conflicting meetingIds
   Map<String, List<String>> getMeetingConflicts(List<Meeting> meetings) {
     Map<String, List<String>> conflicts = {};
     Duration duration = Duration(hours: 1);

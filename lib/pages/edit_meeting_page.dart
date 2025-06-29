@@ -28,7 +28,7 @@ class _EditMeetingPageState extends State<EditMeetingPage> {
     super.initState();
     titleController = TextEditingController(text: widget.meeting.title);
     linkController = TextEditingController(text: widget.meeting.meetLink);
-    attendeesController = TextEditingController(text: ''); // Optional: format attendees usernames if needed
+    attendeesController = TextEditingController(text: '');
     selectedDateTime = widget.meeting.datetimeUTC.toLocal();
   }
 

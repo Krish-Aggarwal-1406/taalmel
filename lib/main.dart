@@ -8,10 +8,8 @@ import 'pages/login_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Properly await Firebase initialization
   await Firebase.initializeApp();
 
-  // Initialize GetX Controllers ONCE here
   Get.put(UserController());
   Get.put(MeetingController());
 
